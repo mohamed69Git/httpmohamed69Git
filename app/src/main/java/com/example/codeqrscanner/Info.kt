@@ -1,6 +1,6 @@
 package com.example.codeqrscanner
 
-data class User(
+data class Info(
     val id: Int? = null,
-    val typeRepas: Int? = null,
+    val email: String? = null,
 )

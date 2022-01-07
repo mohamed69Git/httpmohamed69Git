@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -23,8 +24,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.HttpException
+import retrofit2.Response
 import java.util.jar.Manifest
+import java.util.regex.Pattern
 
 class MainActivity : AppCompatActivity() {
     private lateinit var codescanner: CodeScanner
@@ -100,11 +105,20 @@ class MainActivity : AppCompatActivity() {
         codescanner.autoFocusMode = AutoFocusMode.SAFE
         codescanner.scanMode = ScanMode.SINGLE
         codescanner.isAutoFocusEnabled = true
-        codescanner.isFlashEnabled = true
+        codescanner.isFlashEnabled = false
         codescanner.decodeCallback = DecodeCallback {
             runOnUiThread {
-                Toast.makeText(this, "Scan Result: ${it.text}", Toast.LENGTH_SHORT).show()
-                findUser(it.text)
+
+                if (Pattern.compile("([0-9]*)").matcher(it.text).matches()) {
+                    println("${it.text}0000000000000000000000000000")
+                    findUser(it.text.toInt())
+
+
+                } else {
+                    Toast.makeText(this, "Ce code qr n'est pas reconnu", Toast.LENGTH_SHORT)
+                        .show()
+
+                }
             }
         }
 
@@ -155,42 +169,79 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun findUser(email: String) {
+    fun findUser(id: Int) {
+        println(")))))))))))))))))))))))))))))))))))))00")
         val service = RetrofitFactory.makeRetrofitService()
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = service.findUser(email)
-            withContext(Dispatchers.Main) {
-                try {
+        val call = service.findUser(id)
+        call.enqueue(object : Callback<Compte> {
+            override fun onResponse(call: Call<Compte>, response: Response<Compte>) {
 
-                    if (response.isSuccessful) {
-                        println("GOOOAAAAAAAALAAAASOOOOOOOO \n ${response.body()}")
-//                        if(response.body()?.status == 1){
-
-                        val intent = (Intent(this@MainActivity, Capture::class.java))
-                        intent.putExtra("name", response.body()!!.name)
-                        intent.putExtra("email", response.body()!!.email)
-                        intent.putExtra("nbrticketcent", response.body()!!.ticket_cent)
-                        intent.putExtra("nbrticketfifty", response.body()!!.ticket_fifty)
-                        intent.putExtra("status", response.body()!!.status)
-                        intent.putExtra("context", response.body()!!.context)
-
-
-//                        }
-//                        if(response.body()?.status == 0){
-//                        }
-                        startActivity(intent)
-                        finish()
-
-
-                    } else {
-                        print("THE RESPONSE FAILED:   $response")
-                    }
-                } catch (e: HttpException) {
-                    println("Exception ${e.message}")
-                } catch (e: Throwable) {
-                    println("Oops: Something else went wrong")
+                println("${response.body()}")
+                Toast.makeText(
+                    this@MainActivity,
+                    "GOOOAAAAAAAALAAAASOOOOOOOO ${response.body()?.status}",
+                    Toast.LENGTH_LONG
+                ).show()
+                if(response.body()!!.status == 1) {
+                    val intent = (Intent(this@MainActivity, Capture::class.java))
+                    intent.putExtra("name", response.body()?.name)
+                    intent.putExtra("email", response.body()?.email)
+                    intent.putExtra("nbrticketcent", response.body()?.ticket_cent)
+                    intent.putExtra("nbrticketfifty", response.body()?.ticket_fifty)
+                    intent.putExtra("status", response.body()?.status)
+                    intent.putExtra("context", response.body()?.context)
+                    intent.putExtra("id", id)
+                    startActivity(intent)
+                    finish()
+                }
+                else {
+                    Toast.makeText(this@MainActivity, "Cet etudiant n'est pas inscrit au service de crous", Toast.LENGTH_SHORT).show()
                 }
             }
-        }
+
+            override fun onFailure(call: Call<Compte>, t: Throwable) {
+                t.printStackTrace()
+            }
+
+
+        })
+//        CoroutineScope(Dispatchers.IO).launch {
+//            val response = service.findUser(email)
+//            withContext(Dispatchers.Main) {
+//                try {
+//
+//                    if (response.isSuccessful) {
+////                        if(response.body()!!.status== 0){
+////
+////                        }
+//                        Toast.makeText(this@MainActivity,"GOOOAAAAAAAALAAAASOOOOOOOO ${response.body()}", Toast.LENGTH_LONG).show()
+////                        if(response.body()?.status == 1){
+//
+//                        val intent = (Intent(this@MainActivity, Capture::class.java))
+//                        intent.putExtra("name", response.body()!!.name)
+//                        intent.putExtra("email", response.body()!!.email)
+//                        intent.putExtra("nbrticketcent", response.body()!!.ticket_cent)
+//                        intent.putExtra("nbrticketfifty", response.body()!!.ticket_fifty)
+//                        intent.putExtra("status", response.body()!!.status)
+//                        intent.putExtra("context", response.body()!!.context)
+//
+//
+////                        }
+////                        if(response.body()?.status == 0){
+////                        }
+//                        startActivity(intent)
+//                        finish()
+//
+//
+//                    } else {
+//                        print("THE RESPONSE FAILED:   $response")
+//                    }
+//                } catch (e: HttpException) {
+//                    println("Exception ${e.message}")
+//                } catch (e: Throwable) {
+//                    println("Oops: Something else went wrong")
+//                }
+//            }
+//        }
     }
 }

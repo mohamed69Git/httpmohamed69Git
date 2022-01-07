@@ -5,6 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitFactory  {
     const val BASE_URL = "http://192.168.43.186:8000/api/"
+//    restuniv.herokuapp.com
     fun makeRetrofitService(): RetrofitService {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
