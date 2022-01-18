@@ -37,7 +37,7 @@ class Capture : AppCompatActivity() {
             infouseraccount.visibility = VISIBLE
             val contextRepas = intent.getStringExtra("context")
             println("CONTESSSS $contextRepas")
-            if (contextRepas == "repas"  || contextRepas == "diner")
+            if (contextRepas == "repas" || contextRepas == "diner")
                 coupeticketcent.visibility = VISIBLE
             if (contextRepas == "petitDejeuner")
                 coupetikettfifty.visibility = VISIBLE
@@ -48,15 +48,15 @@ class Capture : AppCompatActivity() {
 
             }
             coupetikettfifty.setOnClickListener {
-                apply(User(intent.getIntExtra("id", -1)))
+                apply(User(intent.getIntExtra("id", -1), 2))
 //                        coupetikettfifty.isEnabled = false
-
             }
             coupeticketcent.setOnClickListener {
+                println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"$contextRepas")
                 if (contextRepas == "repas")
-                    apply(User(intent.getIntExtra("id", -1)))
+                    apply(User(intent.getIntExtra("id", -1), 1))
                 if (contextRepas == "diner")
-                    apply(User(intent.getIntExtra("id", -1)))
+                    apply(User(intent.getIntExtra("id", -1), 3))
 
 
             }
@@ -67,7 +67,7 @@ class Capture : AppCompatActivity() {
     }
 
     fun apply(user: User) {
-        println("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPppp")
+        println("DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP")
         val service = RetrofitFactory.makeRetrofitService()
         val call = service.apply(user)
         call.enqueue(object : Callback<ResponsePass> {
@@ -75,14 +75,14 @@ class Capture : AppCompatActivity() {
                 println("REPONSEREPONSEREPONSEREPONSE ${response.body()?.message}")
                 coupeticketcent.isEnabled = false
                 coupetikettfifty.isEnabled = false
-                if (response.body()!!.message == "OK") {
+                if (response.body()?.message == "ok") {
                     Toast.makeText(this@Capture, "Le ticket a été retiré", Toast.LENGTH_LONG).show()
                 } else {
                     Toast.makeText(this@Capture, "Nombre de tickets insuffisant", Toast.LENGTH_LONG)
                         .show()
                 }
                 println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOooo")
-                println("APPLYYYYYYYYYYY: ${response.body()?.message}")
+
             }
 
             override fun onFailure(call: Call<ResponsePass>, t: Throwable) {
